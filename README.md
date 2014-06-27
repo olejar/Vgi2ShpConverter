@@ -1,8 +1,8 @@
-<eb>Vgi2ShpConverter:<eb>
+<b>Vgi2ShpConverter:<b>
 
 VGI file format conversion to SHP file format - for Slovak users only
 
-<eb>License:<eb>
+<b>License:<b>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
