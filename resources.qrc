@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/plugins/vgi2shpconverter">
+    <file>vgi2shp_96.bmp</file>
+    <file>icon.png</file>
+  </qresource>
+</RCC>

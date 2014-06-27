@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Vgi2ShpConverter</class>
+ <widget class="QDialog" name="Vgi2ShpConverter">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>250</width>
+    <height>221</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Vgi2Shp</string>
+  </property>
+  <widget class="QPushButton" name="pushButton">
+   <property name="geometry">
+    <rect>
+     <x>5</x>
+     <y>190</y>
+     <width>238</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Prevod súborov VGI formátu do SHP formátu</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>248</width>
+     <height>184</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="pixmap">
+    <pixmap resource="resources.qrc">:/plugins/vgi2shpconverter/vgi2shp_96.bmp</pixmap>
+   </property>
+  </widget>
+ </widget>
+ <tabstops>
+  <tabstop>pushButton</tabstop>
+ </tabstops>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>pushButton</sender>
+   <signal>pressed()</signal>
+   <receiver>Vgi2ShpConverter</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>109</x>
+     <y>205</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>124</x>
+     <y>110</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>select_file()</slot>
+ </slots>
+</ui>
