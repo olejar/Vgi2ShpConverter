@@ -1481,7 +1481,7 @@ class Vgi2ShpConverter:
         global record_kladpar, record_zappar, record_linie, record_zuob, record_katuz, record_tarchy, record_popis, record_znacky, record_polygon, prechod
         from PyQt4 import QtGui
         file_part = ''
-        file_part = QtGui.QFileDialog.getOpenFileName(None, u'Vyberte VGI súbor', os.getcwd(), 'VGI File *.vgi')
+        file_part = QtGui.QFileDialog.getOpenFileName(None, u'Vyberte VGI súbor', os.getcwd(), 'VGI File kn*.vgi KN*.vgi uo*.vgi UO*.vgi')
         if file_part <> '':
             self.dlg.setEnabled(False)
             self.dlg.repaint()
@@ -1607,7 +1607,7 @@ class Vgi2ShpConverter:
         while result == 1:
             # do something useful (delete the line containing pass and
             # substitute with your code)
+            self.dlg.move(self.dlg.x(),self.dlg.y())
             self.dlg.show()
             self.select_files()
-            # self.dlg.hide()
             result = self.dlg.exec_()
