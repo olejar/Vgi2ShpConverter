@@ -58,105 +58,6 @@ def calculate_max(x,y,calculate_object):
     if y > globals()["ymax_"+calculate_object]:
         globals()["ymax_"+calculate_object] = y
 
-def codepage_conv(char):
-    global char852
-    char1250=ord(char)
-    if char1250 == 129:
-        char1250 = 252
-    elif char1250 == 130:
-        char1250 = 233
-    elif char1250 == 132:
-        char1250 = 228
-    elif char1250 == 133:
-        char1250 = 249
-    elif char1250 == 138:
-        char1250 = 213
-    elif char1250 == 139:
-        char1250 = 245
-    elif char1250 == 142:
-        char1250 = 196
-    elif char1250 == 144:
-        char1250 = 201
-    elif char1250 == 145:
-        char1250 = 197
-    elif char1250 == 146:
-        char1250 = 229
-    elif char1250 == 147:
-        char1250 = 244
-    elif char1250 == 148:
-        char1250 = 246
-    elif char1250 == 149:
-        char1250 = 188
-    elif char1250 == 150:
-        char1250 = 190
-    elif char1250 == 153:
-        char1250 = 214
-    elif char1250 == 154:
-        char1250 = 220
-    elif char1250 == 155:
-        char1250 = 141
-    elif char1250 == 156:
-        char1250 = 157
-    elif char1250 == 159:
-        char1250 = 232
-    elif char1250 == 160:
-        char1250 = 225
-    elif char1250 == 161:
-        char1250 = 237
-    elif char1250 == 162:
-        char1250 = 243
-    elif char1250 == 163:
-        char1250 = 250
-    elif char1250 == 166:
-        char1250 = 142
-    elif char1250 == 167:
-        char1250 = 158
-    elif char1250 == 172:
-        char1250 = 200
-    elif char1250 == 181:
-        char1250 = 193
-    elif char1250 == 183:
-        char1250 = 204
-    elif char1250 == 210:
-        char1250 = 207
-    elif char1250 == 212:
-        char1250 = 239
-    elif char1250 == 213:
-        char1250 = 210
-    elif char1250 == 214:
-        char1250 = 205
-    elif char1250 == 216:
-        char1250 = 236
-    elif char1250 == 222:
-        char1250 = 217
-    elif char1250 == 224:
-        char1250 = 211
-    elif char1250 == 226:
-        char1250 = 212
-    elif char1250 == 229:
-        char1250 = 242
-    elif char1250 == 230:
-        char1250 = 138
-    elif char1250 == 231:
-        char1250 = 154
-    elif char1250 == 232:
-        char1250 = 192
-    elif char1250 == 233:
-        char1250 = 218
-    elif char1250 == 234:
-        char1250 = 224
-    elif char1250 == 235:
-        char1250 = 219
-    elif char1250 == 236:
-        char1250 = 253
-    elif char1250 == 237:
-        char1250 = 221
-    elif char1250 == 252:
-        char1250 = 216
-    elif char1250 == 253:
-        char1250 = 248
-    char852 = chr(char1250)  
-
 def znacky_text(mark):
     global marktext
     if mark == "S1":
@@ -267,7 +168,7 @@ def znacky_text(mark):
       marktext = "smerová šípka k parcelnému číslu"
     else:
       marktext = "bez popisu"
-    marktext = marktext.decode("utf8").encode("cp1250")
+    marktext = marktext.decode("utf8").encode("852")
 
 def calculate_object():
     #KLADPAR
@@ -303,12 +204,12 @@ def calculate_object():
     global xmin_znacky, xmax_znacky, ymin_znacky, ymax_znacky
     global znacik
     #POLYGON
-    global number_of_object_polygon
-    global xmin_polygon, xmax_polygon, ymin_polygon, ymax_polygon
+    global number_of_object_polyg
+    global xmin_polyg, xmax_polyg, ymin_polyg, ymax_polyg
     global polygonik
     f = open(files,'r')
     kladparik = uovik = zapparik = linijik = zuobik = katuzik = tarchik = popisik = znacik = polygonik = 0
-    global_object = ['kladpar','zappar','linie','zuob','katuz','tarchy','popis','znacky','polygon']
+    global_object = ['kladpar','zappar','linie','zuob','katuz','tarchy','popis','znacky','polyg']
     for i_global_object in global_object:
         globals()["number_of_object_"+i_global_object] = 0
         globals()["xmin_"+i_global_object] = globals()["ymin_"+i_global_object] = 0
@@ -487,10 +388,10 @@ def calculate_object():
                 elif (section[0] == '&L' and section[1] == 'P' and s_mark == 1):
                     if polygonik == 0:
                         polygonik = 1
-                    number_of_object_polygon += 1
+                    number_of_object_polyg += 1
                     x1 = -1 * float(section[2])
                     y1 = -1 * float(section[3])
-                    calculate_max(x1,y1,'polygon')
+                    calculate_max(x1,y1,'polyg')
                 s = f.readline()
                 divideline(s.strip())
                 if prechod == 1:
@@ -520,13 +421,9 @@ def header(header_object):
     global f_dbf
     import struct
     from time import localtime
-    time = localtime()
-    year = time[0] - 1900
-    month = time[1]
-    day = time[2]
     #SHP
     f=open(file_dir+file_name+'_'+header_object+'.shp','wb')
-    #Main File Header
+    #Shape File Header
     #Integer, Big
     b00_27=struct.pack('>7i',9994,0,0,0,0,0,0)
     f.write(b00_27)
@@ -538,7 +435,7 @@ def header(header_object):
         #Integer, Little
         b28_35=struct.pack('<2i',1000,3)
         f.write(b28_35)
-    elif (header_object == 'popis' or header_object == 'znacky' or header_object == 'polygon'):
+    elif (header_object == 'popis' or header_object == 'znacky' or header_object == 'polyg'):
         #Integer, Little
         b28_35=struct.pack('<2i',1000,1)
         f.write(b28_35)
@@ -565,7 +462,8 @@ def header(header_object):
     f_dbf=open(file_dir+file_name+'_'+header_object+'.dbf','wb')
     #DBF File Header
     #Integer, Big
-    b00_03=struct.pack('>4b',3,year,month,day)
+    time = localtime()
+    b00_03=struct.pack('>4b',3,time[0] - 2000,time[1],time[2])
     f_dbf.write(b00_03)
     #Integer, Little
     if (header_object == 'kladpar' or header_object == 'uov'):
@@ -584,15 +482,16 @@ def header(header_object):
         b04_11=struct.pack('<i2h',number_of_object_popis,129,117)
     elif header_object == 'znacky':
         b04_11=struct.pack('<i2h',number_of_object_znacky,161,122)
-    elif header_object == 'polygon':
-        b04_11=struct.pack('<i2h',number_of_object_polygon,193,130)
+    elif header_object == 'polyg':
+        b04_11=struct.pack('<i2h',number_of_object_polyg,193,130)
     f_dbf.write(b04_11)
     #Integer, Big
     b12_15=struct.pack('>4b',0,0,0,0)
     f_dbf.write(b12_15)
     b16_27=struct.pack('>12b',0,0,0,0,0,0,0,0,0,0,0,0)
     f_dbf.write(b16_27)
-    b28_31=struct.pack('>4b',0,87,0,0)
+    #Codepage_852_EasternEuropean_MSDOS = &H64
+    b28_31=struct.pack('>4b',0,100,0,0)
     f_dbf.write(b28_31)
     #Field Descriptor Array Table
     array([['Objekt','C',6],['Vrstva','C',10]])
@@ -608,7 +507,7 @@ def header(header_object):
         array([['Popis','C',100]])
     elif header_object == 'znacky':
         array([['Znacky','C',5],['Popis','C',100]])
-    elif header_object == 'polygon':
+    elif header_object == 'polyg':
         array([['Bod','C',8],['Znacky','C',5],['Popis','C',100]])
     #End DBF File Header
     b64=struct.pack('>b',13)
@@ -694,12 +593,12 @@ def record(record_object):
     import struct
     #SHP
     f=open(file_dir+file_name+'_'+record_object+'.shp','ab')
-    #Main File Record Header
+    #Shape File Record Header
     if (record_object == 'kladpar' or record_object == 'uov'):
         #Integer, Big
         b00_07=struct.pack('>2i',record_kladpar,(44+number_of_parts*4+i_x_y_record*16)/2)
         f.write(b00_07)
-        #Polygon Record Contents
+        #Record Contents
         #Integer, Little
         b00_03=struct.pack('<i',5)
         f.write(b00_03)
@@ -707,15 +606,15 @@ def record(record_object):
         #Integer, Big
         b00_07=struct.pack('>2i',globals()["record_"+record_object],(44+number_of_parts*4+i_x_y_record*16)/2)
         f.write(b00_07)
-        #Polygon Record Contents
+        #Record Contents
         #Integer, Little
         b00_03=struct.pack('<i',3)
         f.write(b00_03)
-    elif (record_object == 'popis' or record_object == 'znacky' or record_object == 'polygon'):
+    elif (record_object == 'popis' or record_object == 'znacky' or record_object == 'polyg'):
         #Integer, Big
         b00_07=struct.pack('>2i',globals()["record_"+record_object],10)
         f.write(b00_07)
-        #Polygon Record Contents
+        #Record Contents
         #Integer, Little
         b00_03=struct.pack('<i',1)
         f.write(b00_03)
@@ -732,23 +631,18 @@ def record(record_object):
         b44_47=struct.pack('<i',0)
         f.write(b44_47)
         while parts:
-            b_part = parts[0]
-            parts.remove(b_part)
-            b48_51=struct.pack('i',b_part)
+            b48_51=struct.pack('<i',parts[0])
             f.write(b48_51)
+            parts.pop(0)
         #Point Record Contents
         #Double, Little
         while x_y_record:
-            xcoord = x_y_record[0][0]
-            ycoord = x_y_record[0][1]
-            x_y_record.remove([xcoord,ycoord])
-            b48_63=struct.pack('<2d',xcoord,ycoord)
+            b48_63=struct.pack('<2d',x_y_record[0][0],x_y_record[0][1])
             f.write(b48_63)
-    elif (record_object == 'popis' or record_object == 'znacky' or record_object == 'polygon'):
+            x_y_record.pop(0)
+    elif (record_object == 'popis' or record_object == 'znacky' or record_object == 'polyg'):
         #Double, Little
-        xcoord = globals()["x_y_record_"+record_object][0][0]
-        ycoord = globals()["x_y_record_"+record_object][0][1]
-        b04_19=struct.pack('<2d',xcoord,ycoord)
+        b04_19=struct.pack('<2d',globals()["x_y_record_"+record_object][0][0],globals()["x_y_record_"+record_object][0][1])
         f.write(b04_19)
     f.close()
     #SHX
@@ -776,7 +670,7 @@ def record(record_object):
             b00_07 = struct.pack('>2i',globals()["c_length_"+record_object],(44+number_of_parts*4+i_x_y_record*16)/2)
             f.write(b00_07)
             globals()["c_length_"+record_object] += (52+number_of_parts*4+i_x_y_record*16)/2
-    elif (record_object == 'popis' or record_object == 'znacky' or record_object == 'polygon'):
+    elif (record_object == 'popis' or record_object == 'znacky' or record_object == 'polyg'):
         #Index Record
         #Integer, Big
         if globals()["record_"+record_object] == 1:
@@ -833,7 +727,7 @@ def record(record_object):
         f.write(b82_86)
         b87_186=struct.pack('100s',popis)
         f.write(b87_186)
-    elif record_object == 'polygon':
+    elif record_object == 'polyg':
         b82_89=struct.pack('8s',bod)
         f.write(b82_89)
         b90_94=struct.pack('5s',znacky)
@@ -842,23 +736,27 @@ def record(record_object):
         f.write(b95_194)
 
 def end(end_object):
-    import struct
+    import struct, os
     f=open(file_dir+file_name+'_'+end_object+'.dbf','ab')
-    #End Of File
+    #End Of DBF File
     b_end=struct.pack('>b',26)
     f.write(b_end)
+    f.close()
+    f=open(file_dir+file_name+'_'+end_object+'.shp','rb+')
+    #Total length of SHP File
+    f.seek(24)
+    b24_27 = struct.pack('>i',os.path.getsize(file_dir+file_name+'_'+end_object+'.shx')/2)
+    f.write(b24_27)
     f.close()
 
 def prechod_arc(x,y):
     global i_x_y_record, n_i_x_y_record
     global x_y_record, n_x_y_record
     if n_prechod == 0:
-        if calculate == 0:
-            x_y_record += [[x, y]]
+        x_y_record += [[x, y]]
         i_x_y_record += 1
     elif n_prechod > 0:    
-        if calculate == 0:
-            n_x_y_record[n_prechod-1].append([x, y])
+        n_x_y_record[n_prechod-1].append([x, y])
         n_i_x_y_record[n_prechod-1] += 1
 
 def point_arc(uhol, xs, ys, radius):
@@ -1174,31 +1072,27 @@ def func_polygon(polygon_object):
 
 def func_polyline(polyline_object):
     global xmin_polyline, xmax_polyline, ymin_polyline, ymax_polyline
+    global prechod, i_x_y_record, x_y_record, n_prechod
     if polyline_object == 'zappar':
         global record_zappar, number_of_parts, parts, objekt, vrstva
-        global prechod, i_x_y_record, x_y_record, n_prechod
         record_zappar += 1
     elif polyline_object == 'linie':
         global record_linie, number_of_parts, parts, objekt, vrstva, linie, popis
-        global prechod, i_x_y_record, x_y_record, n_prechod
         record_linie += 1
         linie = ''
         popis = ''
     elif polyline_object == 'zuob':
         global record_zuob, number_of_parts, parts, objekt, vrstva, zuob, obec
-        global prechod, i_x_y_record, x_y_record, n_prechod
         record_zuob += 1
         zuob = ''
         obec = ''
     elif polyline_object == 'katuz':
         global record_katuz, number_of_parts, parts, objekt, vrstva, kataster, hku
-        global prechod, i_x_y_record, x_y_record, n_prechod
         record_katuz += 1
         kataster = ''
         hku = ''
-    if polyline_object == 'tarchy':
+    elif polyline_object == 'tarchy':
         global record_tarchy, number_of_parts, parts, objekt, vrstva
-        global prechod, i_x_y_record, x_y_record, n_prechod
         record_tarchy += 1
     xmin_polyline = ymin_polyline = 0
     xmax_polyline = ymax_polyline = -9999999
@@ -1337,10 +1231,6 @@ def func_popis():
                         popis += i_popis
                         popis = popis[1:-1]
                         break
-            for i_popis_char in popis:
-                codepage_conv(i_popis_char)
-                if i_popis_char <> char852:
-                    popis = popis.replace(i_popis_char,char852,1)
             x_y_record_popis = []
             xl = -1 * float(section[1])
             yl = -1 * float(section[2])
@@ -1403,8 +1293,8 @@ def func_znacky():
             prechod = 0
 
 def func_polyg():    
-    global record_polygon, record_popis, objekt, vrstva, bod, znacky, popis, prechod
-    global x_y_record_polygon
+    global record_polyg, record_popis, objekt, vrstva, bod, znacky, popis, prechod
+    global x_y_record_polyg
     vrstva = section[1]
     objekt = section[2]
     bod = ''
@@ -1416,7 +1306,7 @@ def func_polyg():
         if section[0] == '&K':
             break
         elif (section[0] == '&L' and section[1] == 'P' and s_mark == 1):
-            record_polygon += 1
+            record_polyg += 1
             for i_polygon in section[4:]:
                 if i_polygon[:2] == "S=":
                     znacky = 'S' + i_polygon[2:]
@@ -1424,13 +1314,13 @@ def func_polyg():
                     popis = marktext
                 elif i_polygon[:2] == "C=":
                     bod = i_polygon[2:]
-            x_y_record_polygon = []
+            x_y_record_polyg = []
             xl = -1 * float(section[2])
             yl = -1 * float(section[3])
             x1 = xl
             y1 = yl
-            x_y_record_polygon += [[xl, yl]]
-            record('polygon')
+            x_y_record_polyg += [[xl, yl]]
+            record('polyg')
         s = f_global.readline()
         divideline(s.strip())
         if prechod == 1:
@@ -1476,9 +1366,8 @@ class Vgi2ShpConverter:
         self.iface.removeToolBarIcon(self.action)
 
     def select_files(self):
-        global calculate
         global files, f_global, file_name, file_ext, file_dir, ku
-        global record_kladpar, record_zappar, record_linie, record_zuob, record_katuz, record_tarchy, record_popis, record_znacky, record_polygon, prechod
+        global record_kladpar, record_zappar, record_linie, record_zuob, record_katuz, record_tarchy, record_popis, record_znacky, record_polyg, prechod
         from PyQt4 import QtGui
         file_part = ''
         file_part = QtGui.QFileDialog.getOpenFileName(None, u'Vyberte VGI súbor', os.getcwd(), 'VGI File kn*.vgi KN*.vgi uo*.vgi UO*.vgi')
@@ -1490,9 +1379,7 @@ class Vgi2ShpConverter:
             file_ext = files[files.find('.')+1:]
             file_dir = files[:files.rfind('/')+1]
             ku = str(file_name[2:8])
-            calculate = 1
             calculate_object()
-            calculate = 0
             if kladparik == 1:
                 header('kladpar')
                 record_kladpar = 0
@@ -1521,8 +1408,8 @@ class Vgi2ShpConverter:
                 header('znacky')
                 record_znacky = 0
             if polygonik == 1:
-                header('polygon')
-                record_polygon = 0
+                header('polyg')
+                record_polyg = 0
             f_global = open(files,'r')
             prechod = 1
             s = f_global.readline()
@@ -1592,7 +1479,7 @@ class Vgi2ShpConverter:
             if znacik == 1:
                 end('znacky')
             if polygonik == 1:
-                end('polygon')
+                end('polyg')
             f_global.close()
             self.dlg.setEnabled(True)
             self.dlg.repaint()
