@@ -12,7 +12,7 @@
 name=Vgi2Shp
 qgisMinimumVersion=2.0
 description=Vgi2Shp Converter, for Slovak users only
-version=1.1
+version=1.2
 author=Ing.Olejar Milan, State Nature Conservancy, Slovakia
 email=milan.olejar@sopsr.sk
 
