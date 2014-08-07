@@ -207,7 +207,7 @@ def calculate_object():
     global number_of_object_polyg
     global xmin_polyg, xmax_polyg, ymin_polyg, ymax_polyg
     global polygonik
-    f = open(files,'r')
+    f=open(files,'r')
     kladparik = uovik = zapparik = linijik = zuobik = katuzik = tarchik = popisik = znacik = polygonik = 0
     global_object = ['kladpar','zappar','linie','zuob','katuz','tarchy','popis','znacky','polyg']
     for i_global_object in global_object:
@@ -490,7 +490,6 @@ def header(header_object):
     f_dbf.write(b12_15)
     b16_27=struct.pack('>12b',0,0,0,0,0,0,0,0,0,0,0,0)
     f_dbf.write(b16_27)
-    #Codepage_852_EasternEuropean_MSDOS = &H64
     b28_31=struct.pack('>4b',0,100,0,0)
     f_dbf.write(b28_31)
     #Field Descriptor Array Table
@@ -734,7 +733,8 @@ def record(record_object):
         f.write(b90_94)
         b95_194=struct.pack('100s',popis)
         f.write(b95_194)
-
+    f.close()
+    
 def end(end_object):
     import struct, os
     f=open(file_dir+file_name+'_'+end_object+'.dbf','ab')
@@ -847,12 +847,7 @@ def arc(x1, x2, x3, y1, y2, y3, xx1, xx2, xx3, yy1, yy2, yy3):
         clock = 1
     elif ((start > inner) and (inner > finis)):
         clock = 0
-    elif  ((start < inner) and (inner > finis)):
-        if start > finis:
-            clock = 1
-        else:
-            clock = 0
-    elif  ((start > inner) and (inner < finis)):
+    else:
         if start > finis:
             clock = 1
         else:
