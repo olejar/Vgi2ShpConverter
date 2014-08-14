@@ -170,6 +170,32 @@ def znacky_text(mark):
       marktext = "bez popisu"
     marktext = marktext.decode("utf8").encode("852")
 
+def dbfreader(f):
+    import struct, itertools
+    fields = []
+    numrec, lenheader = struct.unpack('<xxxxLH22x', f.read(32))    
+    numfields = (lenheader - 33) // 32
+    for fieldno in xrange(numfields):
+        name, typ, size, deci = struct.unpack('<11sc4xBB14x', f.read(32))
+        name = name.replace('\0', '')
+        fields.append((name, typ, size, deci))
+    terminator = f.read(1)
+    assert terminator == '\r'
+    fields.insert(0, ('DeletionFlag', 'C', 1, 0))
+    fmt = ''.join(['%ds' % fieldinfo[2] for fieldinfo in fields])
+    fmtsiz = struct.calcsize(fmt)
+    for i in xrange(numrec):
+        record = struct.unpack(fmt, f.read(fmtsiz))
+        if record[0] != ' ':
+            continue
+        result = []
+        for (name, typ, size, deci), value in itertools.izip(fields, record):
+            if name == 'DeletionFlag':
+                continue
+            value = value.replace('\0', '').lstrip()
+            result.append(value)
+        yield result
+
 def calculate_object():
     #KLADPAR
     global number_of_object_kladpar
@@ -467,7 +493,7 @@ def header(header_object):
     f_dbf.write(b00_03)
     #Integer, Little
     if (header_object == 'kladpar' or header_object == 'uov'):
-        b04_11=struct.pack('<i2h',number_of_object_kladpar,289,67)
+        b04_11=struct.pack('<i2h',number_of_object_kladpar,385,103)
     elif header_object == 'zappar':
         b04_11=struct.pack('<i2h',number_of_object_zappar,97,17)
     elif header_object == 'linie':
@@ -495,7 +521,7 @@ def header(header_object):
     #Field Descriptor Array Table
     array([['Objekt','C',6],['Vrstva','C',10]])
     if (header_object == 'kladpar' or header_object == 'uov'):
-        array([['Parcis','C',12],['CPA','N',12],['Parcela','C',12],['KU','C',6],['DRP','C',2],['LV','C',6]])
+        array([['Parcis','C',12],['CPA','N',12],['Parcela','C',12],['KU','C',6],['DRP','C',28],['PKK','N',3],['CEL','N',6],['CLV','N',6],['UMP','N',1]])
     elif header_object == 'linie':
         array([['Linie','C',3],['Popis','C',100]])
     elif header_object == 'zuob':
@@ -699,10 +725,16 @@ def record(record_object):
         f.write(b106_117)
         b118_123=struct.pack('6s',ku)
         f.write(b118_123)
-        b124_129=struct.pack('2s',dp)
-        f.write(b124_129)
-        b130_135=struct.pack('6s',lv)
-        f.write(b130_135)
+        b124_151=struct.pack('28s',dp)
+        f.write(b124_151)
+        b152_154=struct.pack('3s',pk)
+        f.write(b152_154)
+        b155_160=struct.pack('6s',el)
+        f.write(b155_160)
+        b161_166=struct.pack('6s',lv)
+        f.write(b161_166)
+        b167_167=struct.pack('1s',up)
+        f.write(b167_167)
     elif record_object == 'linie':
         b82_84=struct.pack('3s',linie)
         f.write(b82_84)
@@ -854,8 +886,22 @@ def arc(x1, x2, x3, y1, y2, y3, xx1, xx2, xx3, yy1, yy2, yy3):
             clock = 0
     compute_arc(clock,start,finis,xs,ys,radius,x1,y1,x3,y3)
 
+def binary_search(alist, item):
+    min = 0
+    max = len(alist)-1
+    while min <= max:
+        mid = (min+max)//2
+        midval = alist[mid][0]
+        if midval < item:
+            min = mid+1
+        elif midval > item: 
+            max = mid-1
+        else:
+            return mid
+    return -1
+
 def func_polygon(polygon_object):
-    global record_kladpar, number_of_parts, parts, objekt, vrstva, parcis, cpa, parcela, dp, lv, prechod, n_prechod
+    global record_kladpar, number_of_parts, parts, objekt, vrstva, parcis, cpa, parcela, dp, pk, el, lv, up, prechod, n_prechod
     global i_x_y_record, x_y_record, n_i_x_y_record, n_x_y_record
     global xmin_polygon, xmax_polygon, ymin_polygon, ymax_polygon
     #ZNACKY IN KLADPAR
@@ -867,10 +913,8 @@ def func_polygon(polygon_object):
     vrstva = section[1]
     objekt = section[2]
     parcis = ''
-    cpa = '0'
+    cpa = dp = pk = el =lv = up = '0'
     parcela = ''
-    dp = '0'
-    lv = '0'
     #ZNACKY IN KLADPAR
     znacky = ''
     popis = ''
@@ -911,6 +955,25 @@ def func_polygon(polygon_object):
                     cpa = (parcis[:parcis.find('.')]+parcis[(parcis.find('.')+1):])
             else:
                 cpa = '0'
+            # DRP, PKK, CEL, CLV and UMP from list
+            if read_dbf:
+                if (dp == '0' and lv == '0'):
+                    index = binary_search(read_dbf,cpa)
+                    if index <> -1:
+                        if polygon_object == 'kladpar':
+                            dp = dp_dbf[int(read_dbf[index][3])]
+                            pk = read_dbf[index][5]
+                            el = read_dbf[index][8]
+                            lv = read_dbf[index][9]
+                            up = read_dbf[index][11]
+                        elif polygon_object == 'uov':
+                            dp = dp_dbf[int(read_dbf[index][4])]
+                            pk = read_dbf[index][6]
+                            el = read_dbf[index][9]
+                            lv = read_dbf[index][10]
+                            up = read_dbf[index][12]
+                        dp = dp.decode("utf8").encode("852")
+                        read_dbf.pop(index)
         if (section[0] == '&L'):
             if s_mark == 0:
                 xl = -1 * float(section[2])
@@ -1363,8 +1426,11 @@ class Vgi2ShpConverter:
     def select_files(self):
         global files, f_global, file_name, file_ext, file_dir, ku
         global record_kladpar, record_zappar, record_linie, record_zuob, record_katuz, record_tarchy, record_popis, record_znacky, record_polyg, prechod
+        global read_dbf, dp_dbf
         from PyQt4 import QtGui
         file_part = ''
+        read_dbf = []
+        dp_dbf = ['','','orná pôda','chmeľnica','vinica','záhrada','ovocný sad','trvalý trávny porast','','','lesný pozemok','vodná plocha','','zastavaná plocha a nádvorie','ostatná plocha']
         file_part = QtGui.QFileDialog.getOpenFileName(None, u'Vyberte VGI súbor', os.getcwd(), 'VGI File kn*.vgi KN*.vgi uo*.vgi UO*.vgi')
         if file_part <> '':
             self.dlg.setEnabled(False)
@@ -1374,6 +1440,17 @@ class Vgi2ShpConverter:
             file_ext = files[files.find('.')+1:]
             file_dir = files[:files.rfind('/')+1]
             ku = str(file_name[2:8])
+            # Create list from DBF file
+            if (file_name[:2] == 'kn' or file_name[:2] == 'KN'):
+                dbfik = 'pa'
+            elif (file_name[:2] == 'uo' or file_name[:2] == 'UO'):
+                dbfik = 'ep'
+            if os.path.isfile(file_dir+ dbfik + ku+'.dbf'):
+                with open(file_dir+ dbfik + ku+'.dbf', 'rb') as f:
+                    for row in list(dbfreader(f)):
+                        read_dbf += [row]
+                    read_dbf.sort()
+                f.close()
             calculate_object()
             if kladparik == 1:
                 header('kladpar')
