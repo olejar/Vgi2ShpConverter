@@ -29,7 +29,6 @@ import resources_rc
 from vgi2shpconverterdialog import Vgi2ShpConverterDialog
 import os.path
 
-# zaciatok
 def divideline(dataline):
     global section, s_mark
     section = []
@@ -173,7 +172,7 @@ def znacky_text(mark):
 def dbfreader(f):
     import struct, itertools
     fields = []
-    numrec, lenheader = struct.unpack('<xxxxLH22x', f.read(32))    
+    numrec, lenheader = struct.unpack('<xxxxLH22x', f.read(32))
     numfields = (lenheader - 33) // 32
     for fieldno in xrange(numfields):
         name, typ, size, deci = struct.unpack('<11sc4xBB14x', f.read(32))
@@ -941,13 +940,6 @@ def func_polygon(polygon_object):
                 parcis = section[1][7:]
             elif (section[1][:3] == 'KN=' or section[1][:3] == 'UO='):
                 parcis = section[1][3:]
-            elif (section[1][:3] == 'DP=' or section[1][:4] == 'KUL='):
-                if section[1][:3] == 'DP=':
-                    dp = section[1][3:]
-                elif section[1][:4] == 'KUL=':
-                    dp = section[1][4:]
-            elif section[1][:3] == 'LV=':
-                lv = section[1][3:]
             if parcis.find('-') == -1:
                 if len(parcis)-(parcis.find('.')+1) == 3:
                     cpa = (parcis[:parcis.find('.')]+parcis[(parcis.find('.')+1):]+'0')
@@ -957,23 +949,22 @@ def func_polygon(polygon_object):
                 cpa = '0'
             # DRP, PKK, CEL, CLV and UMP from list
             if read_dbf:
-                if (dp == '0' and lv == '0'):
-                    index = binary_search(read_dbf,cpa)
-                    if index <> -1:
-                        if polygon_object == 'kladpar':
-                            dp = dp_dbf[int(read_dbf[index][3])]
-                            pk = read_dbf[index][5]
-                            el = read_dbf[index][8]
-                            lv = read_dbf[index][9]
-                            up = read_dbf[index][11]
-                        elif polygon_object == 'uov':
-                            dp = dp_dbf[int(read_dbf[index][4])]
-                            pk = read_dbf[index][6]
-                            el = read_dbf[index][9]
-                            lv = read_dbf[index][10]
-                            up = read_dbf[index][12]
-                        dp = dp.decode("utf8").encode("852")
-                        read_dbf.pop(index)
+                index = binary_search(read_dbf,cpa)
+                if index <> -1:
+                    if polygon_object == 'kladpar':
+                        dp = dp_dbf[int(read_dbf[index][3])]
+                        pk = read_dbf[index][5]
+                        el = read_dbf[index][8]
+                        lv = read_dbf[index][9]
+                        up = read_dbf[index][11]
+                    elif polygon_object == 'uov':
+                        dp = dp_dbf[int(read_dbf[index][4])]
+                        pk = read_dbf[index][6]
+                        el = read_dbf[index][9]
+                        lv = read_dbf[index][10]
+                        up = read_dbf[index][12]
+                    dp = dp.decode("utf8").encode("852")
+                    read_dbf.pop(index)
         if (section[0] == '&L'):
             if s_mark == 0:
                 xl = -1 * float(section[2])
@@ -1383,7 +1374,6 @@ def func_polyg():
         divideline(s.strip())
         if prechod == 1:
             prechod = 0
-# koniec
 
 class Vgi2ShpConverter:
 
