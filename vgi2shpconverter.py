@@ -167,7 +167,7 @@ def znacky_text(mark):
       marktext = "smerová šípka k parcelnému číslu"
     else:
       marktext = "bez popisu"
-    marktext = marktext.decode("utf8").encode("852")
+    marktext = marktext.decode("utf8").encode("1250")
 
 def dbfreader(f):
     import struct, itertools
@@ -437,9 +437,9 @@ def array(array_table):
         f_dbf.write(b43)
         b44_47=struct.pack('>i',0)
         f_dbf.write(b44_47)
-        b48_49=struct.pack('>2b',i_array_table[2],0)
+        b48_49=struct.pack('>2B',i_array_table[2],0)
         f_dbf.write(b48_49)
-        b50_63=struct.pack('>14b',0,0,0,0,0,0,0,0,0,0,0,0,0,0)
+        b50_63=struct.pack('>14B',0,0,0,0,0,0,0,0,0,0,0,0,0,0)
         f_dbf.write(b50_63)
 
 def header(header_object):
@@ -488,7 +488,7 @@ def header(header_object):
     #DBF File Header
     #Integer, Big
     time = localtime()
-    b00_03=struct.pack('>4b',3,time[0] - 2000,time[1],time[2])
+    b00_03=struct.pack('>4B',3,time[0] - 2000,time[1],time[2])
     f_dbf.write(b00_03)
     #Integer, Little
     if (header_object == 'kladpar' or header_object == 'uov'):
@@ -511,11 +511,11 @@ def header(header_object):
         b04_11=struct.pack('<i2h',number_of_object_polyg,193,130)
     f_dbf.write(b04_11)
     #Integer, Big
-    b12_15=struct.pack('>4b',0,0,0,0)
+    b12_15=struct.pack('>4B',0,0,0,0)
     f_dbf.write(b12_15)
-    b16_27=struct.pack('>12b',0,0,0,0,0,0,0,0,0,0,0,0)
+    b16_27=struct.pack('>12B',0,0,0,0,0,0,0,0,0,0,0,0)
     f_dbf.write(b16_27)
-    b28_31=struct.pack('>4b',0,100,0,0)
+    b28_31=struct.pack('>4B',0,200,0,0)
     f_dbf.write(b28_31)
     #Field Descriptor Array Table
     array([['Objekt','C',6],['Vrstva','C',10]])
@@ -534,7 +534,7 @@ def header(header_object):
     elif header_object == 'polyg':
         array([['Bod','C',8],['Znacky','C',5],['Popis','C',100]])
     #End DBF File Header
-    b64=struct.pack('>b',13)
+    b64=struct.pack('>B',13)
     f_dbf.write(b64)
     f_dbf.close()
     #PRJ
@@ -770,7 +770,7 @@ def end(end_object):
     import struct, os
     f=open(file_dir+file_name+'_'+end_object+'.dbf','ab')
     #End Of DBF File
-    b_end=struct.pack('>b',26)
+    b_end=struct.pack('>B',26)
     f.write(b_end)
     f.close()
     f=open(file_dir+file_name+'_'+end_object+'.shp','rb+')
@@ -963,7 +963,7 @@ def func_polygon(polygon_object):
                         el = read_dbf[index][9]
                         lv = read_dbf[index][10]
                         up = read_dbf[index][12]
-                    dp = dp.decode("utf8").encode("852")
+                    dp = dp.decode("utf8").encode("1250")
                     read_dbf.pop(index)
         if (section[0] == '&L'):
             if s_mark == 0:
@@ -1280,6 +1280,7 @@ def func_popis():
                         popis += i_popis
                         popis = popis[1:-1]
                         break
+            popis = popis.decode("852").encode("1250")
             x_y_record_popis = []
             xl = -1 * float(section[1])
             yl = -1 * float(section[2])
