@@ -27,7 +27,11 @@ from qgis.core import *
 import resources_rc
 # Import the code for the dialog
 from vgi2shpconverterdialog import Vgi2ShpConverterDialog
-import os.path
+# Import the Vgi2Shp libraries 
+import os.path, struct, itertools
+from time import localtime
+from math import sin, cos, pi, sqrt, asin, degrees
+from PyQt4 import QtGui
 
 def divideline(dataline):
     global section, s_mark
@@ -170,7 +174,6 @@ def znacky_text(mark):
     marktext = marktext.decode("utf8").encode("1250")
 
 def dbfreader(f):
-    import struct, itertools
     fields = []
     numrec, lenheader = struct.unpack('<xxxxLH22x', f.read(32))
     numfields = (lenheader - 33) // 32
@@ -429,7 +432,6 @@ def calculate_object():
     f.close()
 
 def array(array_table):
-    import struct
     for i_array_table in array_table:
         b32_42=struct.pack('>11s',i_array_table[0])
         f_dbf.write(b32_42)
@@ -444,8 +446,6 @@ def array(array_table):
 
 def header(header_object):
     global f_dbf
-    import struct
-    from time import localtime
     #SHP
     f=open(file_dir+file_name+'_'+header_object+'.shp','wb')
     #Shape File Header
@@ -614,7 +614,6 @@ def header(header_object):
     f.close()
 
 def record(record_object):
-    import struct
     #SHP
     f=open(file_dir+file_name+'_'+record_object+'.shp','ab')
     #Shape File Record Header
@@ -767,7 +766,6 @@ def record(record_object):
     f.close()
     
 def end(end_object):
-    import struct, os
     f=open(file_dir+file_name+'_'+end_object+'.dbf','ab')
     #End Of DBF File
     b_end=struct.pack('>B',26)
@@ -791,7 +789,6 @@ def prechod_arc(x,y):
         n_i_x_y_record[n_prechod-1] += 1
 
 def point_arc(uhol, xs, ys, radius):
-    from math import sin, cos, pi
     if ((uhol >= 0) and (uhol < 90)):
         uhlik = (pi/180)*(90-uhol)
         x0 = xs + (radius * cos(uhlik))
@@ -848,7 +845,6 @@ def compute_arc(clock, start, finis, xs, ys, radius, x1, y1, x3, y3):
                 prechod_arc(x3,y3)
 
 def arc(x1, x2, x3, y1, y2, y3, xx1, xx2, xx3, yy1, yy2, yy3):
-    from math import sqrt, asin, degrees
     ka = (yy2-yy1)/(xx2-xx1)
     kb = (yy3-yy2)/(xx3-xx2)
     xs = (ka*kb*(yy1-yy3)+kb*(xx1+xx2)-ka*(xx2+xx3))/(2*(kb-ka))
@@ -1418,7 +1414,6 @@ class Vgi2ShpConverter:
         global files, f_global, file_name, file_ext, file_dir, ku
         global record_kladpar, record_zappar, record_linie, record_zuob, record_katuz, record_tarchy, record_popis, record_znacky, record_polyg, prechod
         global read_dbf, dp_dbf
-        from PyQt4 import QtGui
         file_part = ''
         read_dbf = []
         dp_dbf = ['','','orná pôda','chmeľnica','vinica','záhrada','ovocný sad','trvalý trávny porast','','','lesný pozemok','vodná plocha','','zastavaná plocha a nádvorie','ostatná plocha']
