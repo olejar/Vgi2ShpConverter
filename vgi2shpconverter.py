@@ -492,7 +492,10 @@ def header(header_object):
     f_dbf.write(b00_03)
     #Integer, Little
     if (header_object == 'kladpar' or header_object == 'uov'):
-        b04_11=struct.pack('<i2h',number_of_object_kladpar,385,103)
+        if read_dbf:
+            b04_11=struct.pack('<i2h',number_of_object_kladpar,417,115)
+        else:
+            b04_11=struct.pack('<i2h',number_of_object_kladpar,225,59)
     elif header_object == 'zappar':
         b04_11=struct.pack('<i2h',number_of_object_zappar,97,17)
     elif header_object == 'linie':
@@ -520,7 +523,10 @@ def header(header_object):
     #Field Descriptor Array Table
     array([['Objekt','C',6],['Vrstva','C',10]])
     if (header_object == 'kladpar' or header_object == 'uov'):
-        array([['Parcis','C',12],['CPA','N',12],['Parcela','C',12],['KU','C',6],['DRP','C',28],['PKK','N',3],['CEL','N',6],['CLV','N',6],['UMP','N',1]])
+        if read_dbf:
+            array([['Parcis','C',12],['CPA','N',12],['Parcela','C',12],['KU','C',6],['DRP','C',28],['PKK','N',3],['CEL','N',6],['CLV','N',6],['UMP','N',1],['VYM','N',12]])
+        else:
+            array([['Parcis','C',12],['CPA','N',12],['Parcela','C',12],['KU','C',6]])
     elif header_object == 'linie':
         array([['Linie','C',3],['Popis','C',100]])
     elif header_object == 'zuob':
@@ -701,16 +707,19 @@ def record(record_object):
         f.write(b106_117)
         b118_123=struct.pack('6s',ku)
         f.write(b118_123)
-        b124_151=struct.pack('28s',dp)
-        f.write(b124_151)
-        b152_154=struct.pack('3s',pk)
-        f.write(b152_154)
-        b155_160=struct.pack('6s',el)
-        f.write(b155_160)
-        b161_166=struct.pack('6s',lv)
-        f.write(b161_166)
-        b167_167=struct.pack('1s',up)
-        f.write(b167_167)
+        if read_dbf:
+            b124_151=struct.pack('28s',dp)
+            f.write(b124_151)
+            b152_154=struct.pack('3s',pk)
+            f.write(b152_154)
+            b155_160=struct.pack('6s',el)
+            f.write(b155_160)
+            b161_166=struct.pack('6s',lv)
+            f.write(b161_166)
+            b167_167=struct.pack('1s',up)
+            f.write(b167_167)
+            b168_179=struct.pack('12s',vy)
+            f.write(b168_179)
     elif record_object == 'linie':
         b82_84=struct.pack('3s',linie)
         f.write(b82_84)
@@ -874,7 +883,7 @@ def binary_search(alist, item):
     return -1
 
 def func_polygon(polygon_object):
-    global record_kladpar, number_of_parts, parts, objekt, vrstva, parcis, cpa, parcela, dp, pk, el, lv, up, prechod, n_prechod
+    global record_kladpar, number_of_parts, parts, objekt, vrstva, parcis, cpa, parcela, dp, pk, el, lv, up, vy, prechod, n_prechod
     global i_x_y_record, x_y_record, n_i_x_y_record, n_x_y_record
     global xmin_polygon, xmax_polygon, ymin_polygon, ymax_polygon
     #ZNACKY IN KLADPAR
@@ -886,7 +895,7 @@ def func_polygon(polygon_object):
     vrstva = section[1]
     objekt = section[2]
     parcis = ''
-    cpa = dp = pk = el =lv = up = '0'
+    cpa = dp = pk = el =lv = up = vy = '0'
     parcela = ''
     #ZNACKY IN KLADPAR
     znacky = ''
@@ -931,12 +940,14 @@ def func_polygon(polygon_object):
                         el = read_dbf[index][8]
                         lv = read_dbf[index][9]
                         up = read_dbf[index][11]
+                        vy = read_dbf[index][1]
                     elif polygon_object == 'uov':
                         dp = dp_dbf[int(read_dbf[index][4])]
                         pk = read_dbf[index][6]
                         el = read_dbf[index][9]
                         lv = read_dbf[index][10]
                         up = read_dbf[index][12]
+                        vy = read_dbf[index][2]
                     dp = dp.decode("utf8").encode("1250")
                     read_dbf.pop(index)
         if (section[0] == '&L'):
