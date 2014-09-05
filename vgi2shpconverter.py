@@ -492,7 +492,7 @@ def header(header_object):
     f_dbf.write(b00_03)
     #Integer, Little
     if (header_object == 'kladpar' or header_object == 'uov'):
-        if read_dbf:
+        if (dbf_ep or dbf_pa):
             b04_11=struct.pack('<i2h',number_of_object_kladpar,417,115)
         else:
             b04_11=struct.pack('<i2h',number_of_object_kladpar,225,59)
@@ -516,14 +516,14 @@ def header(header_object):
     #Integer, Big
     b12_15=struct.pack('>4B',0,0,0,0)
     f_dbf.write(b12_15)
-    b16_27=struct.pack('>12B',0,0,0,0,0,0,0,0,0,0,0,0)
+    b16_27=struct.pack('>12B',114,97,106,101,108,79,32,110,97,108,105,77)
     f_dbf.write(b16_27)
     b28_31=struct.pack('>4B',0,200,0,0)
     f_dbf.write(b28_31)
     #Field Descriptor Array Table
     array([['Objekt','C',6],['Vrstva','C',10]])
     if (header_object == 'kladpar' or header_object == 'uov'):
-        if read_dbf:
+        if (dbf_ep or dbf_pa):
             array([['Parcis','C',12],['CPA','N',12],['Parcela','C',12],['KU','C',6],['DRP','C',28],['PKK','N',3],['CEL','N',6],['CLV','N',6],['UMP','N',1],['VYM','N',12]])
         else:
             array([['Parcis','C',12],['CPA','N',12],['Parcela','C',12],['KU','C',6]])
@@ -707,7 +707,7 @@ def record(record_object):
         f.write(b106_117)
         b118_123=struct.pack('6s',ku)
         f.write(b118_123)
-        if read_dbf:
+        if (dbf_ep or dbf_pa):
             b124_151=struct.pack('28s',dp)
             f.write(b124_151)
             b152_154=struct.pack('3s',pk)
@@ -931,7 +931,7 @@ def func_polygon(polygon_object):
             else:
                 cpa = '0'
             # DRP, PKK, CEL, CLV and UMP from list
-            if read_dbf:
+            if (dbf_ep or dbf_pa):
                 index = binary_search(read_dbf,cpa)
                 if index <> -1:
                     if polygon_object == 'kladpar':
@@ -1402,10 +1402,11 @@ class Vgi2ShpConverter:
     def select_files(self):
         global files, f_global, file_name, file_ext, file_dir, ku
         global record_kladpar, record_zappar, record_linie, record_zuob, record_katuz, record_tarchy, record_popis, record_znacky, record_polyg, prechod
-        global read_dbf, dp_dbf
+        global read_dbf, dp_dbf, dbf_ep, dbf_pa
         file_part = ''
         read_dbf = []
         dp_dbf = ['','','orná pôda','chmeľnica','vinica','záhrada','ovocný sad','trvalý trávny porast','','','lesný pozemok','vodná plocha','','zastavaná plocha a nádvorie','ostatná plocha']
+        dbf_ep = dbf_pa = 0
         file_part = QtGui.QFileDialog.getOpenFileName(None, u'Vyberte VGI súbor', os.getcwd(), 'VGI File kn*.vgi KN*.vgi uo*.vgi UO*.vgi')
         if file_part <> '':
             self.dlg.setEnabled(False)
@@ -1421,6 +1422,10 @@ class Vgi2ShpConverter:
             elif (file_name[:2] == 'uo' or file_name[:2] == 'UO'):
                 dbfik = 'ep'
             if os.path.isfile(file_dir+ dbfik + ku+'.dbf'):
+                if dbfik == 'pa':
+                    dbf_pa = 1
+                elif dbfik == 'ep':
+                    dbf_ep = 1
                 with open(file_dir+ dbfik + ku+'.dbf', 'rb') as f:
                     for row in list(dbfreader(f)):
                         read_dbf += [row]
