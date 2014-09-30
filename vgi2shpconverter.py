@@ -883,7 +883,7 @@ def binary_search(alist, item):
     return -1
 
 def func_polygon(polygon_object):
-    global record_kladpar, number_of_parts, parts, objekt, vrstva, parcis, cpa, parcela, dp, pk, el, lv, up, vy, prechod, n_prechod
+    global record_kladpar, number_of_parts, parts, objekt, vrstva, parcis, cpa, cpu, parcela, dp, pk, el, lv, up, vy, prechod, n_prechod
     global i_x_y_record, x_y_record, n_i_x_y_record, n_x_y_record
     global xmin_polygon, xmax_polygon, ymin_polygon, ymax_polygon
     #ZNACKY IN KLADPAR
@@ -895,7 +895,7 @@ def func_polygon(polygon_object):
     vrstva = section[1]
     objekt = section[2]
     parcis = ''
-    cpa = dp = pk = el =lv = up = vy = '0'
+    cpa = cpu = dp = pk = el =lv = up = vy = '0'
     parcela = ''
     #ZNACKY IN KLADPAR
     znacky = ''
@@ -924,32 +924,45 @@ def func_polygon(polygon_object):
             elif (section[1][:3] == 'KN=' or section[1][:3] == 'UO='):
                 parcis = section[1][3:]
             if parcis.find('-') == -1:
+                cpu = '0'
                 if len(parcis)-(parcis.find('.')+1) == 3:
                     cpa = (parcis[:parcis.find('.')]+parcis[(parcis.find('.')+1):]+'0')
                 if len(parcis)-(parcis.find('.')+1) == 4:
                     cpa = (parcis[:parcis.find('.')]+parcis[(parcis.find('.')+1):])
             else:
-                cpa = '0'
+                cpu = parcis[:parcis.find('-')]
+                if len(parcis)-(parcis.find('.')+1) == 3:
+                    cpa = parcis[parcis.find('-')+1:][:parcis[parcis.find('-')+1:].find('.')]+parcis[parcis.find('-')+1:][parcis[parcis.find('-')+1:].find('.')+1:]+'0'
+                if len(parcis)-(parcis.find('.')+1) == 4:
+                    cpa = parcis[parcis.find('-')+1:][:parcis[parcis.find('-')+1:].find('.')]+parcis[parcis.find('-')+1:][parcis[parcis.find('-')+1:].find('.')+1:]
             # DRP, PKK, CEL, CLV and UMP from list
             if (dbf_ep or dbf_pa):
                 index = binary_search(read_dbf,cpa)
                 if index <> -1:
                     if polygon_object == 'kladpar':
-                        dp = dp_dbf[int(read_dbf[index][3])]
+                        dp = dp_dbf[int(read_dbf[index][3])].decode("utf8").encode("1250")
                         pk = read_dbf[index][5]
                         el = read_dbf[index][8]
                         lv = read_dbf[index][9]
                         up = read_dbf[index][11]
                         vy = read_dbf[index][1]
+                        read_dbf.pop(index)
                     elif polygon_object == 'uov':
-                        dp = dp_dbf[int(read_dbf[index][4])]
-                        pk = read_dbf[index][6]
-                        el = read_dbf[index][9]
-                        lv = read_dbf[index][10]
-                        up = read_dbf[index][12]
-                        vy = read_dbf[index][2]
-                    dp = dp.decode("utf8").encode("1250")
-                    read_dbf.pop(index)
+                        if read_dbf[index][1] <> cpu:
+                            if (index-1 >= 0 and read_dbf[index-1][0] == cpa and read_dbf[index-1][1] == cpu):
+                                index -= 1
+                            elif (index+1 <= len(read_dbf)-1 and read_dbf[index+1][0] == cpa and read_dbf[index+1][1] == cpu):
+                                index += 1
+                            else:
+                                index = -1
+                        if index <> -1:
+                            dp = dp_dbf[int(read_dbf[index][4])].decode("utf8").encode("1250")
+                            pk = read_dbf[index][6]
+                            el = read_dbf[index][9]
+                            lv = read_dbf[index][10]
+                            up = read_dbf[index][12]
+                            vy = read_dbf[index][2]
+                            read_dbf.pop(index)
         if (section[0] == '&L'):
             if s_mark == 0:
                 xl = -1 * float(section[2])
