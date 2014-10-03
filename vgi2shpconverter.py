@@ -895,7 +895,7 @@ def func_polygon(polygon_object):
     vrstva = section[1]
     objekt = section[2]
     parcis = ''
-    cpa = cpu = dp = pk = el =lv = up = vy = '0'
+    cpa = cpu = dp = pk = el = lv = up = vy = '0'
     parcela = ''
     #ZNACKY IN KLADPAR
     znacky = ''
