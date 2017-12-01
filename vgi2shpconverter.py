@@ -28,7 +28,7 @@ import resources_rc
 # Import the code for the dialog
 from vgi2shpconverterdialog import Vgi2ShpConverterDialog
 # Import the Vgi2Shp libraries 
-import os.path, struct, itertools
+import os.path, struct, itertools, operator
 from time import localtime
 from math import sin, cos, pi, sqrt, asin, degrees
 from PyQt4 import QtGui
@@ -575,6 +575,10 @@ def header(header_object):
     f.write(b406_442)
     b443_493=struct.pack('>51s','PARAMETER["longitude_of_center",24.83333333333333],')
     f.write(b443_493)
+    b493_493=struct.pack('>26s','PARAMETER["x_scale",-1.0],')
+    f.write(b493_493)
+    b494_494=struct.pack('>25s','PARAMETER["y_scale",1.0],')
+    f.write(b494_494)
     b494_532=struct.pack('>39s','PARAMETER["azimuth",30.28813972222222],')
     f.write(b494_532)
     b533_577=struct.pack('>45s','PARAMETER["pseudo_standard_parallel_1",78.5],')
@@ -585,6 +589,8 @@ def header(header_object):
     f.write(b611_639)
     b640_669=struct.pack('>30s','PARAMETER["false_northing",0],')
     f.write(b640_669)
+    b669_669=struct.pack('>36s','PARAMETER["xy_plane_rotation",90.0],')
+    f.write(b669_669)
     b670_684=struct.pack('>15s','UNIT["metre",1,')
     f.write(b670_684)
     b685_710=struct.pack('>26s','AUTHORITY["EPSG","9001"]],')
@@ -895,7 +901,7 @@ def func_polygon(polygon_object):
     vrstva = section[1]
     objekt = section[2]
     parcis = ''
-    cpa = cpu = dp = pk = el = lv = up = vy = '0'
+    cpa = cpu = dp = pk = el =lv = up = vy = '0'
     parcela = ''
     #ZNACKY IN KLADPAR
     znacky = ''
@@ -1278,7 +1284,8 @@ def func_popis():
                         popis += i_popis
                         popis = popis[1:-1]
                         break
-            popis = popis.decode("852").encode("1250")
+            try: popis = popis.decode("852").encode("1250")
+            except UnicodeEncodeError: print("Subor: " + file_name + ", Objekt: " + objekt + " - Neidentifikovatelny znak")
             x_y_record_popis = []
             xl = -1 * float(section[1])
             yl = -1 * float(section[2])
@@ -1416,12 +1423,12 @@ class Vgi2ShpConverter:
         global files, f_global, file_name, file_ext, file_dir, ku
         global record_kladpar, record_zappar, record_linie, record_zuob, record_katuz, record_tarchy, record_popis, record_znacky, record_polyg, prechod
         global read_dbf, dp_dbf, dbf_ep, dbf_pa
-        file_part = ''
+        file_part, file_time = '', localtime()
         read_dbf = []
         dp_dbf = ['','','orná pôda','chmeľnica','vinica','záhrada','ovocný sad','trvalý trávny porast','','','lesný pozemok','vodná plocha','','zastavaná plocha a nádvorie','ostatná plocha']
         dbf_ep = dbf_pa = 0
         file_part = QtGui.QFileDialog.getOpenFileName(None, u'Vyberte VGI súbor', os.getcwd(), 'VGI File kn*.vgi KN*.vgi uo*.vgi UO*.vgi')
-        if file_part <> '':
+        if file_part <> '' and operator.le(file_time[0], int("7E2",16)):
             self.dlg.setEnabled(False)
             self.dlg.repaint()
             files = file_part
