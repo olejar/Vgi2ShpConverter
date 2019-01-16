@@ -10,11 +10,13 @@
 
 [general]
 name=Vgi2Shp
-qgisMinimumVersion=2.0
+qgisMinimumVersion=3.0
+qgisMaximumVersion=3.4
 description=Vgi2Shp Converter, for Slovak users only
-version=2.1
+about=VGI format converter to SHP format
+version=3.0
 author=Ing.Olejar Milan, State Nature Conservancy, Slovakia
-email=milan.olejar@sopsr.sk
+email=nalim.rajelo@gmail.com
 
 # end of mandatory metadata
 
